@@ -2,6 +2,10 @@
 
 基于附带的 `classroom-quiz.zip` 改写，沿用它的静态网页和三条 MQTT 实时中继线路，不需要 Microsoft 或 ChatGPT 登录。
 
+教师页面：https://ty-workshop.github.io/classroom-anchor-experiment/#host
+
+学生链接和二维码在教师页面中生成。不要把教师页面链接当作学生问卷链接。
+
 学生只看到两页，没有问卷标题：
 
 1. 用常用电话号码最后两位填写两位被试编号。明确只收末两位，不收姓名或完整电话号码。

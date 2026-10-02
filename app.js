@@ -17,7 +17,7 @@ function groupStats(rows,mode,cuts){const ranges=mode===2?[[0,cuts[0]-1],[cuts[0
 function notify(s){$('toast').textContent=s;$('toast').style.display='block';clearTimeout(notify.timer);notify.timer=setTimeout(()=>$('toast').style.display='none',3000);}
 function status(s,state='warn'){$('connection').textContent=s;$('connection').dataset.state=state;}
 function persist(){try{localStorage.setItem(STORE,JSON.stringify(host));return true;}catch{status('本机保存失败，请立即导出数据；新的提交暂不确认。');return false;}}
-function newHost(){return {room:random(),secret:random(),run:random(),broker:0,config:{...DEFAULT},rows:[],history:[],open:true,mode:2,cuts2:[50],cuts3:[33,67]};}
+function newHost(){return {room:random(),secret:random(),run:random(),broker:1,config:{...DEFAULT},rows:[],history:[],open:true,mode:2,cuts2:[50],cuts3:[33,67]};}
 function validConfig(c){return c&&['q1','help','product','description','q2'].every(k=>typeof c[k]==='string'&&c[k].length<=10000)&&c.product.trim()&&c.q1.trim()&&c.q2.trim();}
 async function setupCrypto(){cryptoKey=await crypto.subtle.importKey('raw',Uint8Array.from(secret.match(/../g),h=>parseInt(h,16)),{name:'AES-GCM'},false,['encrypt','decrypt']);}
 function b64(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes)));}
