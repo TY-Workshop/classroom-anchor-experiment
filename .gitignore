@@ -2,4 +2,5 @@ source-original/
 node_modules/
 test-results/
 test-live.cjs
+test-online.cjs
 *.zip
