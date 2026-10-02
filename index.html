@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>课堂实验</title>
+<link rel="stylesheet" href="style.css">
+<script src="vendor/mqtt.min.js" defer></script><script src="vendor/qrcode.min.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<div id="connection" role="status">正在连接课堂…</div>
+<main id="student" hidden>
+  <div class="student-card">
+    <div id="waiting" role="status">正在获取题目，请稍候…</div>
+    <form id="page1" hidden>
+      <div class="progress">1 / 2</div>
+      <h1 id="q1"></h1><p id="q1help" class="description"></p>
+      <label for="anchor">被试编号（00–99）</label>
+      <input id="anchor" type="text" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="例如：07" required pattern="[0-9]{1,2}">
+      <p id="error1" class="error" role="alert"></p>
+      <button type="submit">下一页</button>
+    </form>
+    <form id="page2" hidden>
+      <div class="progress">2 / 2</div>
+      <h1 id="product"></h1><p id="productDesc" class="description product-description"></p>
+      <label id="q2" for="price"></label>
+      <div class="money-input"><span>¥</span><input id="price" type="text" inputmode="decimal" autocomplete="off" placeholder="请输入金额" required></div>
+      <p class="hint">人民币（元）；不愿购买可填 0。</p>
+      <p id="error2" class="error" role="alert"></p>
+      <div class="actions"><button id="back" class="secondary" type="button">上一页</button><button id="submit" type="submit">提交</button></div>
+    </form>
+    <div id="done" hidden><h1>提交成功</h1><p>你的回答已送达老师。谢谢！</p></div>
+  </div>
+</main>
+<main id="teacher" hidden>
+  <header><div><p class="eyebrow">教师端</p><h1>电话号码锚定实验</h1></div><button id="project" class="secondary">投影结果</button></header>
+  <section class="panel management">
+    <h2>让学生参加</h2><div class="join-layout"><div id="qr"></div><div class="join-info"><p>学生扫码后直接作答，无须注册或登录。</p><a id="joinLink" target="_blank" rel="noopener"></a><div class="actions"><button id="copyLink" class="secondary">复制学生链接</button><button id="downloadQR" class="secondary">下载二维码</button><button id="pause" class="secondary">暂停收集</button><button id="newRound" class="secondary">新一轮实验</button></div><p class="hint">上课时保持教师页面打开。数据保存在这台电脑的浏览器，可导出 CSV。</p></div></div>
+    <details><summary>连接线路</summary><p class="hint">沿用附带 App 的免费实时中继。换线路后需让学生重新扫码。</p><select id="broker"><option value="0">线路 1 · Mosquitto</option><option value="1">线路 2 · EMQX</option><option value="2">线路 3 · HiveMQ</option></select></details>
+  </section>
+  <section id="results" class="panel">
+    <div class="result-heading"><div><h2>平均最高愿付价格</h2><p id="resultProduct"></p></div><div class="group-mode"><button id="two">两组</button><button id="three">三组</button></div></div>
+    <div class="boundaries management"><span>按被试编号分组：</span><label>第一分界 <input id="cut1" type="number" min="1" max="99" value="50"></label><label id="cut2wrap" hidden>第二分界 <input id="cut2" type="number" min="2" max="99" value="67"></label><button id="applyCuts" class="secondary">应用</button><span class="hint">分界值归入后一组；切换后会用全部已收数据重新计算。</span></div>
+    <p id="groupError" class="error" role="alert"></p>
+    <p id="responseCount" class="count"></p><div id="groupStats" class="stats" aria-live="polite"></div><div id="bars" class="bars"></div>
+    <p class="hint">金额单位：人民币元。均值包含每份已确认提交的回答，不自动排除高价或 0 元；未作答不计入。</p>
+    <div class="actions management"><button id="export" class="secondary">导出本轮 CSV</button><button id="exportHistory" class="secondary">导出历史轮次 CSV</button></div>
+  </section>
+  <section class="panel management"><details id="editor" open><summary>修改学生看到的题目和产品</summary><div class="editor-fields">
+    <label>第一页问题<input id="editQ1" maxlength="300"></label>
+    <label>第一页说明<textarea id="editHelp" rows="4" maxlength="2000"></textarea></label>
+    <label>第二页产品名称<input id="editProduct" maxlength="300"></label>
+    <label>产品介绍<textarea id="editDesc" rows="8" maxlength="10000"></textarea></label>
+    <label>第二页问题<textarea id="editQ2" rows="2" maxlength="1000"></textarea></label>
+    <button id="saveConfig">保存并更新学生题目</button><p class="hint">如果已有人提交，修改题目会先保存本轮并开始新一轮，避免把不同产品的价格混在一起。</p><p id="editorStatus" role="status"></p>
+  </div></details></section>
+  <section class="panel management"><details><summary>查看本轮提交记录</summary><div class="table-scroll"><table><thead><tr><th>序号</th><th>被试编号</th><th>最高愿付价格（人民币）</th><th>提交时间</th></tr></thead><tbody id="records"></tbody></table></div></details></section>
+  <p class="management hint">电话尾号用于分组，不是唯一身份编号；系统用随机编号去重，不收姓名或完整电话。免费中继无稳定性保证，请课前用学生手机试一次。</p>
+</main>
+<div id="toast" role="status"></div>
+</body></html>
