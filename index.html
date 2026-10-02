@@ -32,7 +32,7 @@
   </div>
 </main>
 <main id="teacher" hidden>
-  <header><div><p class="eyebrow">教师端</p><h1>电话号码锚定实验</h1></div><button id="project" class="secondary">投影结果</button></header>
+  <header><div><p class="eyebrow">教师端</p><h1>电话号码锚定实验</h1></div><div class="actions"><a href="price-survey/#host">四个价格问卷</a><button id="project" class="secondary">投影结果</button></div></header>
   <section class="panel management">
     <h2>让学生参加</h2><div class="join-layout"><div id="qr"></div><div class="join-info"><p>学生扫码后直接作答，无须注册或登录。</p><a id="joinLink" target="_blank" rel="noopener"></a><div class="actions"><button id="copyLink" class="secondary">复制学生链接</button><button id="downloadQR" class="secondary">下载二维码</button><button id="pause" class="secondary">暂停收集</button><button id="newRound" class="secondary">新一轮实验</button></div><p class="hint">上课时保持教师页面打开。数据保存在这台电脑的浏览器，可导出 CSV。</p></div></div>
     <details><summary>连接线路</summary><p class="hint">沿用附带 App 的免费实时中继。换线路后需让学生重新扫码。</p><select id="broker"><option value="0">线路 1 · Mosquitto</option><option value="1">线路 2 · EMQX</option><option value="2">线路 3 · HiveMQ</option></select></details>

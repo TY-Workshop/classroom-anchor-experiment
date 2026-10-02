@@ -3,4 +3,6 @@ node_modules/
 test-results/
 test-live.cjs
 test-online.cjs
+test-psm.cjs
+test-psm-browser.cjs
 *.zip

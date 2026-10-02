@@ -1,0 +1,40 @@
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>课堂价格问卷</title>
+<link rel="stylesheet" href="style.css"><script src="../vendor/mqtt.min.js" defer></script><script src="../vendor/qrcode.min.js" defer></script><script src="../vendor/echarts.min.js" defer></script><script src="psm.js" defer></script><script src="app.js" defer></script>
+</head><body>
+<div id="connection" role="status">正在连接课堂…</div>
+<main id="student" hidden><section class="student-sheet">
+ <div id="waiting" role="status">正在获取题目，请稍候…</div>
+ <form id="questionnaire" hidden>
+  <h1 id="product"></h1><p id="description" class="description"></p>
+  <div id="questions"></div><p id="error" class="error" role="alert"></p><button id="submit" type="submit">提交</button>
+ </form>
+ <div id="done" hidden><h1>提交成功</h1><p>你的四个回答已送达老师。谢谢！</p></div>
+</section></main>
+<main id="teacher" hidden>
+ <header><div><p class="eyebrow">教师端</p><h1>四个价格问卷</h1></div><div class="actions"><a class="teacher-nav management" href="../#host">电话号码锚定实验</a><button id="project" class="secondary">投影结果</button></div></header>
+ <section class="panel management"><h2>让学生参加</h2><div class="join-layout"><div id="qr"></div><div class="join-info"><p>学生扫码直接填写四个价格，无须登录。</p><a id="joinLink" target="_blank" rel="noopener"></a><div class="actions"><button id="copyLink" class="secondary">复制学生链接</button><button id="downloadQR" class="secondary">下载二维码</button><button id="pause" class="secondary">暂停收集</button><button id="newRound" class="secondary">新一轮问卷</button></div><p class="hint">收集时保持教师页面打开；课后可导出 CSV。</p></div></div><details><summary>连接线路</summary><p class="hint">换线路后请让学生重新扫码。</p><select id="broker"><option value="1">EMQX（默认）</option><option value="0">Mosquitto</option><option value="2">HiveMQ</option></select></details></section>
+ <section id="results" class="panel">
+  <div class="result-heading"><div><h2 id="resultProduct"></h2><p id="responseCount"></p></div><div class="chart-controls"><label><input id="auxiliary" type="checkbox" checked> 显示辅助曲线</label><button id="showAll" class="secondary">显示全部曲线</button></div></div>
+  <div id="chart" role="img" aria-label="价格敏感度曲线及关键交叉点"></div>
+  <p id="emptyMessage" class="hint"></p>
+  <p id="acceptableRange" class="range"></p>
+  <div class="table-scroll"><table class="points-table"><thead><tr><th>交叉点</th><th>价格（人民币元）</th><th>交叉曲线</th><th>含义</th></tr></thead><tbody id="pointRows"></tbody></table></div>
+  <p class="hint">点击交叉点名称，可突出对应曲线。若两条曲线在一段价格上重合，则显示该区间，不强行给出单一价格。</p>
+  <p class="interpretation">OPP 是“太便宜”与“太贵”比例相等的平衡点，不等于利润最大化价格；IPP 也不意味着每个人都无所谓。</p>
+  <details class="method management"><summary>计算方法与课堂解释</summary><div id="methodText">
+   <p>四题分别收集：太便宜、便宜／划算、贵但仍考虑、太贵不考虑。四个价格可相等，但不能倒置。未完成、非数值或顺序不一致的回答不计入曲线；程序不自动改写学生答案。</p>
+   <p>按每一个实际回答价格构建经验累计阶梯曲线：“太便宜”“便宜／划算”随价格升高而下降，“贵”“太贵”随价格升高而上升。“不便宜”＝100%−“便宜／划算”，“不贵”＝100%−“贵”。PMC 和 PME 使用这两条反向辅助曲线，采用参考 PDF 的原始六曲线口径。</p>
+   <p>交叉发生在阶梯跳变时，价格取该跳变的价格，交叉比例在竖直跳变段上插值；水平重合保留为区间。交叉价格不使用粗网格或“最近点”替代。交叉点上的比例不一定为 50%。</p>
+   <p>PMC—PME 是本样本的心理可接受价格范围参考，不是每个人都愿购买的范围。OPP 不是成本、销量、收入或利润计算的结果。小班结果适合课堂演示；实时值会随新回答变化。</p>
+   <p>定义依据：<a href="https://www.researchgate.net/publication/304658564_The_Van_Westendorp_Price-Sensitivity_Meter_As_A_Direct_Measure_Of_Willingness-To-Pay" target="_blank" rel="noopener">Kunter（2016），Van Westendorp PSM</a>。</p>
+  </div></details>
+  <div class="actions management"><button id="export" class="secondary">导出本轮回答 CSV</button><button id="exportPoints" class="secondary">导出交叉点 CSV</button><button id="exportHistory" class="secondary">导出全部历史回答</button></div>
+ </section>
+ <section class="panel management"><details id="editor" open><summary>修改产品和四道问题</summary><div class="editor-fields">
+  <label>产品名称<input id="editProduct" maxlength="300"></label><label>产品介绍<textarea id="editDescription" rows="8" maxlength="10000"></textarea></label>
+  <div id="questionEditors"></div><button id="saveConfig">保存并更新学生题目</button><p class="hint">请保留四题对应的价格含义。已有回答时，修改题目会先保存本轮并开始新一轮，避免混合不同产品或题目的回答。</p><p id="editorStatus" role="status"></p>
+ </div></details></section>
+ <section class="panel management"><details><summary>查看本轮原始回答</summary><div class="table-scroll"><table><thead><tr><th>序号</th><th>太便宜</th><th>便宜／划算</th><th>贵</th><th>太贵</th><th>提交时间</th></tr></thead><tbody id="records"></tbody></table></div></details></section>
+ <p class="management hint">不收集姓名、电话或账号。数据存在本机浏览器，换电脑或清除浏览器数据不能恢复，请导出备份。免费中继不保证可用性，请课前用学生手机试扫。</p>
+</main><div id="toast" role="status"></div></body></html>
